@@ -4,7 +4,7 @@ from __future__ import annotations
 from ckan.types import Context
 from typing import Any
 from ckan.common import CKANConfig
-import logging
+import logging, os
 
 import ckan.plugins as p
 
@@ -15,6 +15,12 @@ unicode_safe = p.toolkit.get_validator("unicode_safe")
 # from ckanext.markdown_view import helpers, views
 
 log = logging.getLogger(__name__)
+
+DEFAULT_FORMATS = (
+    os.environ.get("CKANINI__CKANEXT__MARKDOWN__FORMATS", "").lower().split()
+)
+if not DEFAULT_FORMATS:
+    DEFAULT_FORMATS = ["text/markdown", "md"]
 
 
 class MarkdownViewPlugin(p.SingletonPlugin):
@@ -52,9 +58,10 @@ class MarkdownViewPlugin(p.SingletonPlugin):
     def can_view(self, data_dict: dict[str, Any]):
 
         resource = data_dict["resource"]
-        return resource.get("format", "").lower() in ["md", "markdown"] or resource[
-            "url"
-        ].split(".")[-1] in ["md", "markdown"]
+        return (
+            resource.get("format", "").lower() in DEFAULT_FORMATS
+            or resource["url"].split(".")[-1] in DEFAULT_FORMATS
+        )
 
     def view_template(self, context: Context, data_dict: dict[str, Any]):
         return "markdown_view.html"
