@@ -1,4 +1,4 @@
-[![Tests](https://github.com/Mat-O-Lab/ckanext-markdown_view/actions/workflows/test.yml/badge.svg)](https://github.com/Mat-O-Lab/ckanext-markdown_view/actions/workflows/test.yml)
+[![Tests](https://github.com/Mat-O-Lab/ckanext-markdown_view/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Mat-O-Lab/ckanext-markdown_view/actions/workflows/test.yml)
 
 # ckanext-markdown_view
 a CKAN extension creating previews for markdown files
