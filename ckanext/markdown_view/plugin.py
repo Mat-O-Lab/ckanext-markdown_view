@@ -1,12 +1,19 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from ckan.types import Context
+
 from typing import Any
 from ckan.common import CKANConfig
 import logging, os
 
 import ckan.plugins as p
+
+if p.toolkit.check_ckan_version("2.10"):
+    from ckan.types import Context
+else:
+    class Context(dict):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
 
 log = logging.getLogger(__name__)
 ignore_empty = p.toolkit.get_validator("ignore_empty")
