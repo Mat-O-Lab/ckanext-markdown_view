@@ -50,7 +50,7 @@ class MarkdownViewPlugin(p.SingletonPlugin):
             "title": p.toolkit._("Markdown"),
             "schema": {"page_url": [ignore_empty, unicode_safe]},
             "iframed": False,
-            "icon": "link",
+            "icon": "markdown",
             "always_available": True,
             "default_title": p.toolkit._("Markdown"),
         }
