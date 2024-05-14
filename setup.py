@@ -15,7 +15,7 @@ setup(
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
     version="0.0.1",
-    description="""An extension for storing file with Apache Jena""",
+    description="""An extension for a markdown preview""",
     long_description=long_description,
     # The project's main homepage.
     url="https://github.com/Mat-O-Lab/ckanext-markdown_view",
@@ -64,9 +64,9 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points="""
         [ckan.plugins]
-        fuseki=ckanext.markdown_view.plugin:MarkdownViewPlugin
+        markdown_view=ckanext.markdown_view.plugin:MarkdownViewPlugin
         [paste.paster_command]
-        fuseki=ckanext.markdown_view.commands:JenaCommand
+        markdown_view=ckanext.markdown_view.commands:MarkdownViewCommand
 
         [babel.extractors]
         ckan = ckan.lib.extract:extract_ckan
