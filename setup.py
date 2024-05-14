@@ -35,14 +35,13 @@ setup(
         "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.8",
     ],
     # What does your project relate to?
     keywords="""CKAN""",
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
-    namespace_packages=["ckanext"],
     install_requires=[
         # CKAN extensions should not list dependencies here, but in a separate
         # ``requirements.txt`` file.
@@ -65,9 +64,6 @@ setup(
     entry_points="""
         [ckan.plugins]
         markdown_view=ckanext.markdown_view.plugin:MarkdownViewPlugin
-        [paste.paster_command]
-        markdown_view=ckanext.markdown_view.commands:MarkdownViewCommand
-
         [babel.extractors]
         ckan = ckan.lib.extract:extract_ckan
     """,
