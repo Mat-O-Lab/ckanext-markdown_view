@@ -11,9 +11,11 @@ import ckan.plugins as p
 if p.toolkit.check_ckan_version("2.10"):
     from ckan.types import Context
 else:
+
     class Context(dict):
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
+
 
 log = logging.getLogger(__name__)
 ignore_empty = p.toolkit.get_validator("ignore_empty")
@@ -49,6 +51,7 @@ class MarkdownViewPlugin(p.SingletonPlugin):
         #             )
         # self.config = config
         p.toolkit.add_template_directory(config, "templates")
+        p.toolkit.add_public_directory(config, "public")
         # p.toolkit.add_resource("assets", "markdown_view")
 
     def info(self) -> dict[str, Any]:
