@@ -16,6 +16,9 @@ https://cdn.jsdelivr.net/npm/marked-extended-tables@1.0.8/lib/index.umd.min.js
     renderer.image = function (href, title, text) {
         return `<img class="img-fluid" src="${href}" alt="${text}" title="${title}" />`; // for local references
     };
+    renderer.paragraph = function (text) {
+        return `<p class="text-break"/>${text}</p>`;
+    };
     marked.use({ renderer });
     // Override function
     const tokenizer = {
