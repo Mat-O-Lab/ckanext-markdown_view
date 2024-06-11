@@ -62,4 +62,11 @@ CKANINI__CKANEXT__MARKDOWN__FORMATS = 'text/markdown'
 ```
 else it will react to the listed formats by default
 
+## Highlight View
+Each resource can be rendered by highlighting some markdown passage.
+The markdown content to highlight must be passed as post to the /highlight url, for example:
+```bash
+curl -X POST 'https://<ckan_url>/dataset/<dataset_d>/resource/<res_id>/highlight' -F highlight="<markdown code to highlight>"
+```
+
 
