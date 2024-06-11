@@ -17,6 +17,8 @@ else:
             super().__init__(**kwargs)
 
 
+from ckanext.markdown_view import views
+
 log = logging.getLogger(__name__)
 ignore_empty = p.toolkit.get_validator("ignore_empty")
 unicode_safe = p.toolkit.get_validator("unicode_safe")
@@ -35,6 +37,7 @@ if not DEFAULT_FORMATS:
 class MarkdownViewPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer)
     p.implements(p.IResourceView, inherit=True)
+    p.implements(p.IBlueprint)
     # IConfigurer
 
     def update_config(self, config: CKANConfig):
@@ -74,7 +77,12 @@ class MarkdownViewPlugin(p.SingletonPlugin):
         )
 
     def view_template(self, context: Context, data_dict: dict[str, Any]):
-        return "markdown_view.html"
+        return "markdown_view/markdown_view.html"
 
     def form_template(self, context: Context, data_dict: dict[str, Any]):
-        return "markdown_view_form.html"
+        return "markdown_view/markdown_view_form.html"
+
+    # IBlueprint
+
+    def get_blueprint(self):
+        return views.get_blueprint()
