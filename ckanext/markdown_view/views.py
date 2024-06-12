@@ -13,18 +13,26 @@ blueprint = Blueprint("markdown_view", __name__)
 
 class HighlightView(MethodView):
     def get(self, pkg_id: str, id: str):
+        from ckanext.markdown_view.plugin import DEFAULT_FORMATS
+
         resource = {}
         try:
             resource = toolkit.get_action("resource_show")({}, {"id": id})
         except (toolkit.ObjectNotFound, toolkit.NotAuthorized):
             base.abort(404, "Resource not found")
-
+        # if (
+        #     resource.get("format", "").lower() in DEFAULT_FORMATS
+        #     or resource["url"].split(".")[-1] in DEFAULT_FORMATS
+        # ):
+        #     base.abort(422, "Not a Markdown File")
         return base.render(
             "markdown_view/highlight.html",
             extra_vars={"resource": resource},
         )
 
     def post(self, pkg_id: str, id: str):
+        from ckanext.markdown_view.plugin import DEFAULT_FORMATS
+
         resource = {}
         highlight = ""
         if "highlight" in request.form:
@@ -35,12 +43,11 @@ class HighlightView(MethodView):
             resource = toolkit.get_action("resource_show")({}, {"id": id})
         except (toolkit.ObjectNotFound, toolkit.NotAuthorized):
             base.abort(404, "Resource not found")
-        # Get the file contents using the CKAN API
-        res_is = str(resource["id"])
-        # file_contents = registry.action.datastore_search_sql(
-
-        #     sql=f'SELECT * FROM "{res_is}"'
-        # )["records"]
+        # if (
+        #     resource.get("format", "").lower() in DEFAULT_FORMATS
+        #     or resource["url"].split(".")[-1] in DEFAULT_FORMATS
+        # ):
+        #     base.abort(422, "Not a Markdown File")
         return base.render(
             "markdown_view/highlight.html",
             extra_vars={

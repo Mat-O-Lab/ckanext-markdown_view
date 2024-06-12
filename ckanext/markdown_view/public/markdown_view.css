@@ -7,8 +7,11 @@
     /* light yellow tone */
 }
 
+#markdown_content {}
+
 .inline {
     display: inline-block;
+    vertical-align: top;
 }
 
 #markdown_content .octicon {
