@@ -1,80 +1,76 @@
 <!-- KaTeX CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha512-w34A5/C2jAhy0kPrFTD5gC3WlX0gLwC7DwsoL78u82ObPVNTcWxbgSvy8vbC8z3E6A3Wn0Jzph9KUSx8+5szKQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" crossorigin="anonymous" />
+
 <!-- Markdown CSS -->
 <link rel="stylesheet" href="/markdown_view.css" />
 
 <div id="markdown_content"></div>
 
 <!-- Required Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js" integrity="sha512-JatFEe90fJU2nrgf27fUz2hWRvdYrSlTEV8esFuqCtfiqWN8phkS1fUl/xCfYyrLDQcNf3YyS0V9hG7U4RHNmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js" integrity="sha512-xeUh+KxNyTufZOje++oQHstlMQ8/rpyzPuM+gjMFYK3z5ILJGE7l2NvYL+XfliKURMpBIKKp1XoPN/qswlSMFA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked-extended-tables@1.0.8/lib/index.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js" integrity="sha512-13sVO9+U6Vj6LkIu4v4F8jwJ0EDeVfw1MYKKd5uITh4fwMyHGO+Flxr4lGGUsyW1yz92HsJQ/+J0uA5OLlGnBA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" integrity="sha512-wr/MJmiDr93aVy47C9kEFwz5j2F3xV93rvOnUVfPndDrE3CG8L/4Sh6xXqHysBBUS1XlXtcm9dxZAIoYOMI9qg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js" crossorigin="anonymous"></script>
 
 <script>
-    // Configure Marked
-    marked.use("marked-extended-tables", "gfm");
-    const renderer = new marked.Renderer();
-
-    // Custom rendering for images and paragraphs
-    renderer.image = function (href, title, text) {
-        return `<img class="img-fluid" src="${href}" alt="${text}" title="${title}" />`;
-    };
-    renderer.paragraph = function (text) {
-        return `<p class="text-break">${text}</p>`;
-    };
-
-    // LaTeX Support in Marked
-    const tokenizer = {
-        codespan(src) {
-            const match = src.match(/^\$+([^\$\n]+?)\$+/);
-            if (match) {
-                return {
-                    type: 'codespan',
-                    raw: match[0],
-                    text: match[1].trim()
-                };
+    // Function to process LaTeX expressions
+    function mathsExpression(expr) {
+        try {
+            // Block equations: $$ ... $$
+            if (expr.match(/^\$\$[\s\S]*\$\$$/)) {
+                expr = expr.substr(2, expr.length - 4); // Remove $$ delimiters
+                return katex.renderToString(expr, { displayMode: true });
             }
+            // Inline equations: $ ... $
+            else if (expr.match(/^\$[\s\S]*\$$/)) {
+                expr = expr.substr(1, expr.length - 2); // Remove $ delimiters
+                return katex.renderToString(expr, { displayMode: false });
+            }
+        } catch (e) {
+            console.error("KaTeX render error:", e);
+            return expr; // Fallback to plain text if rendering fails
+        }
+    }
+
+    // Custom Renderer for Marked
+    const renderer = {
+        // Handle code blocks for LaTeX math
+        code(code, lang, escaped) {
+            if (!lang) { // No language specified, check for math
+                const math = mathsExpression(code);
+                if (math) {
+                    return math; // Render as KaTeX
+                }
+            }
+            // Use default behavior for other code blocks
             return false;
         },
-        inlineMath(src) {
-            const match = src.match(/^\$\$([^$]+?)\$\$/);
-            if (match) {
-                return {
-                    type: 'inlineMath',
-                    raw: match[0],
-                    text: match[1].trim()
-                };
+
+        // Handle inline code spans for LaTeX math
+        codespan(text) {
+            const math = mathsExpression(text);
+            if (math) {
+                return math; // Render as KaTeX
             }
+            // Use default behavior for other code spans
             return false;
         }
     };
 
-    // Add new tokenizer to Marked
-    marked.use({ renderer, tokenizer });
+    // Use the custom renderer with Marked
+    marked.use({ renderer });
 
-    // Fetch Markdown and Render Content
+    // Fetch and Render Markdown Content
     fetch("{{ resource_view.get('page_url') or resource.get('url') }}")
-        .then(response => response.text())
+        .then(response => response.text()) // Fetch raw text
         .then(markdown => {
-            // Parse Markdown
+            // Parse Markdown content with Marked
             const parsedHTML = marked.parse(markdown.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, ""));
 
-            // Sanitize content
+            // Sanitize content for security
             const sanitizedContent = DOMPurify.sanitize(parsedHTML);
 
-            // Inject sanitized HTML
-            const contentDiv = document.getElementById("markdown_content");
-            contentDiv.innerHTML = sanitizedContent;
-
-            // Render LaTeX with KaTeX
-            renderMathInElement(contentDiv, {
-                delimiters: [
-                    { left: "$$", right: "$$", display: true }, // Block equations
-                    { left: "$", right: "$", display: false }  // Inline equations
-                ],
-                throwOnError: false
-            });
-        });
+            // Inject the sanitized HTML into the page
+            document.getElementById("markdown_content").innerHTML = sanitizedContent;
+        })
+        .catch(error => console.error("Failed to load Markdown content:", error));
 </script>
