@@ -1,82 +1,54 @@
+<link rel="stylesheet" href="/markdown_view.css" />
+<div id="markdown_content"></div>
+
 <!-- KaTeX CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.css"
     integrity="sha384-Htz9HMhiwV8GuQ28Xr9pEs1B4qJiYu/nYLLwlDklR53QibDfmQzi7rYxXhMH/5/u" crossorigin="anonymous">
 
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
+<!-- KaTeX JS -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/katex.min.js"
     integrity="sha384-bxmi2jLGCvnsEqMuYLKE/KsVCxV3PqmKeK6Y6+lmNXBry6+luFkEOsmp5vD9I/7+"
     crossorigin="anonymous"></script>
 
-<!-- Auto-render extension to render math expressions
+<!-- Auto-render extension to automatically render math expressions -->
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.15/dist/contrib/auto-render.min.js"
     integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
-    onload="renderMathInElement(document.body);"></script> -->
+    onload="renderMathInElement(document.getElementById('markdown_content'));"></script>
 
-<!-- Custom styles for Markdown content -->
-<link rel="stylesheet" href="/markdown_view.css" />
-<div id="markdown_content"></div>
-
-<!-- Required Scripts for Markdown rendering -->
+<!-- Marked.js and DOMPurify for rendering Markdown -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js" crossorigin="anonymous"></script>
 
 <script>
-    // Function to process LaTeX expressions using KaTeX
-    function mathsExpression(expr) {
-        try {
-            // Block equations: $$ ... $$
-            if (expr.match(/^\$\$[\s\S]*\$\$$/)) {
-                expr = expr.substring(2, expr.length - 2); // Remove $$ delimiters
-                return katex.renderToString(expr, { displayMode: true, throwOnError: false });
-            }
-            // Inline equations: $ ... $
-            else if (expr.match(/^\$[\s\S]*\$$/)) {
-                expr = expr.substring(1, expr.length - 1); // Remove $ delimiters
-                return katex.renderToString(expr, { displayMode: false, throwOnError: false });
-            }
-        } catch (e) {
-            console.error("KaTeX render error:", e);
-            return expr; // Fallback to plain text if rendering fails
-        }
-    }
-
-    // Custom Marked Renderer to process Markdown with KaTeX
     const renderer = {
-        // Handle code blocks for LaTeX math
+        // Use the default code block rendering for Markdown
         code(code, lang) {
-            if (!lang) { // If no language is specified, treat as math
-                const math = mathsExpression(code);
-                if (math) return math;
-            }
-            // Default behavior for other code blocks
             return `<pre><code>${code}</code></pre>`;
         },
-        // Handle inline math using codespan
+        // For inline math, marked.js will use this codespan method (but `auto-render` takes care of math rendering)
         codespan(text) {
-            const math = mathsExpression(text);
-            if (math) return math;
             return `<code>${text}</code>`;
         }
     };
 
-    // Integrate the custom renderer with Marked
+    // Integrating the custom renderer with marked.js
     marked.use({ renderer });
 
-    // Fetch and render Markdown content
-    fetch("{{ resource_view.get('page_url') or resource.get('url') }}")
-        .then(response => response.text()) // Fetch raw Markdown text
+    // Fetching and rendering the Markdown content
+    fetch("{{ resource_view.get('page_url') or resource.get('url') }}")  // Path to raw Markdown file
+        .then(response => response.text())  // Convert to text
         .then(markdown => {
-            // Parse Markdown to HTML with Marked
+            // Parsing the Markdown text into HTML
             let parsedHTML = marked.parse(markdown.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, ""));
 
-            // Sanitize HTML content for security
+            // Sanitize the generated HTML content
             parsedHTML = DOMPurify.sanitize(parsedHTML);
 
             // Inject sanitized HTML into the page
             const contentDiv = document.getElementById("markdown_content");
             contentDiv.innerHTML = parsedHTML;
 
-            // Automatically render any remaining KaTeX math expressions
+            // Trigger KaTeX rendering for math expressions inside the markdown_content div
             renderMathInElement(contentDiv, {
                 delimiters: [
                     { left: "$$", right: "$$", display: true }, // Block math
