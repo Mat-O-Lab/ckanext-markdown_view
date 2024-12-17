@@ -1,26 +1,31 @@
+<!-- KaTeX CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha512-w34A5/C2jAhy0kPrFTD5gC3WlX0gLwC7DwsoL78u82ObPVNTcWxbgSvy8vbC8z3E6A3Wn0Jzph9KUSx8+5szKQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- Markdown CSS -->
 <link rel="stylesheet" href="/markdown_view.css" />
-<div id="markdown_content">
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"
-    integrity="sha512-JatFEe90fJU2nrgf27fUz2hWRvdYrSlTEV8esFuqCtfiqWN8phkS1fUl/xCfYyrLDQcNf3YyS0V9hG7U4RHNmQ=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"
-    integrity="sha512-xeUh+KxNyTufZOje++oQHstlMQ8/rpyzPuM+gjMFYK3z5ILJGE7l2NvYL+XfliKURMpBIKKp1XoPN/qswlSMFA=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="
-https://cdn.jsdelivr.net/npm/marked-extended-tables@1.0.8/lib/index.umd.min.js
-"></script>
+
+<div id="markdown_content"></div>
+
+<!-- Required Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js" integrity="sha512-JatFEe90fJU2nrgf27fUz2hWRvdYrSlTEV8esFuqCtfiqWN8phkS1fUl/xCfYyrLDQcNf3YyS0V9hG7U4RHNmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js" integrity="sha512-xeUh+KxNyTufZOje++oQHstlMQ8/rpyzPuM+gjMFYK3z5ILJGE7l2NvYL+XfliKURMpBIKKp1XoPN/qswlSMFA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked-extended-tables@1.0.8/lib/index.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js" integrity="sha512-13sVO9+U6Vj6LkIu4v4F8jwJ0EDeVfw1MYKKd5uITh4fwMyHGO+Flxr4lGGUsyW1yz92HsJQ/+J0uA5OLlGnBA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" integrity="sha512-wr/MJmiDr93aVy47C9kEFwz5j2F3xV93rvOnUVfPndDrE3CG8L/4Sh6xXqHysBBUS1XlXtcm9dxZAIoYOMI9qg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script>
+    // Configure Marked
     marked.use("marked-extended-tables", "gfm");
     const renderer = new marked.Renderer();
+
+    // Custom rendering for images and paragraphs
     renderer.image = function (href, title, text) {
-        return `<img class="img-fluid" src="${href}" alt="${text}" title="${title}" />`; // for local references
+        return `<img class="img-fluid" src="${href}" alt="${text}" title="${title}" />`;
     };
     renderer.paragraph = function (text) {
-        return `<p class="text-break"/>${text}</p>`;
+        return `<p class="text-break">${text}</p>`;
     };
-    marked.use({ renderer });
-    // Override function
+
+    // LaTeX Support in Marked
     const tokenizer = {
         codespan(src) {
             const match = src.match(/^\$+([^\$\n]+?)\$+/);
@@ -31,16 +36,45 @@ https://cdn.jsdelivr.net/npm/marked-extended-tables@1.0.8/lib/index.umd.min.js
                     text: match[1].trim()
                 };
             }
-
-            // return false to use original codespan tokenizer
+            return false;
+        },
+        inlineMath(src) {
+            const match = src.match(/^\$\$([^$]+?)\$\$/);
+            if (match) {
+                return {
+                    type: 'inlineMath',
+                    raw: match[0],
+                    text: match[1].trim()
+                };
+            }
             return false;
         }
     };
-    marked.use({ tokenizer });
-    fetch("{{ resource_view.get('page_url') or resource.get('url') }}")      // The path to the raw Markdown file
-        .then(response => response.blob())  // Unwrap to a blob...
-        .then(blob => blob.text())          // ...then to raw text...
-        .then(markdown => {                 // ...then pass the raw text into marked.parse
-            document.getElementById("markdown_content").innerHTML = DOMPurify.sanitize(marked.parse(markdown.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, "")));
+
+    // Add new tokenizer to Marked
+    marked.use({ renderer, tokenizer });
+
+    // Fetch Markdown and Render Content
+    fetch("{{ resource_view.get('page_url') or resource.get('url') }}")
+        .then(response => response.text())
+        .then(markdown => {
+            // Parse Markdown
+            const parsedHTML = marked.parse(markdown.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, ""));
+
+            // Sanitize content
+            const sanitizedContent = DOMPurify.sanitize(parsedHTML);
+
+            // Inject sanitized HTML
+            const contentDiv = document.getElementById("markdown_content");
+            contentDiv.innerHTML = sanitizedContent;
+
+            // Render LaTeX with KaTeX
+            renderMathInElement(contentDiv, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true }, // Block equations
+                    { left: "$", right: "$", display: false }  // Inline equations
+                ],
+                throwOnError: false
+            });
         });
 </script>
