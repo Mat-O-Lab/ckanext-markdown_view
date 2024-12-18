@@ -55,7 +55,7 @@ class MarkdownViewPlugin(p.SingletonPlugin):
         # self.config = config
         p.toolkit.add_template_directory(config, "templates")
         p.toolkit.add_public_directory(config, "public")
-        # p.toolkit.add_resource("assets", "markdown_view")
+        p.toolkit.add_resource("assets", "markdown_view")
 
     def info(self) -> dict[str, Any]:
         return {
