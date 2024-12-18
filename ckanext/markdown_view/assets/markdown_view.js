@@ -66,6 +66,16 @@ fetch(pageUrl)  // Path to raw Markdown file
     })
     .catch(error => console.error("Failed to load Markdown content:", error));
 document.addEventListener("DOMContentLoaded", function () {
+    //replace font location
+    const styleSheets = document.styleSheets;
+    for (let i = 0; i < styleSheets.length; i++) {
+        const rules = styleSheets[i].cssRules || styleSheets[i].rules;
+        for (let j = 0; j < rules.length; j++) {
+            if (rules[j].type === CSSRule.FONT_FACE_RULE && rules[j].style.src.includes('fonts/KaTeX')) {
+                rules[j].style.src = rules[j].style.src.replace(/fonts\//g, '/static/katex/fonts/');
+            }
+        }
+    }
     renderMathInElement(document.body, {
         // customised options
         // • auto-render specific keys, e.g.:
