@@ -10,51 +10,42 @@ a CKAN extension creating previews for markdown files
 
 ### Notes:
 
+
 Compatibility with core CKAN versions:
 
-| CKAN version    | Compatible?   |
+| CKAN version    | Compatible?   |
 | --------------- | ------------- |
-| 2.8 and earlier  | not tested    |
-| 2.9             | yes    |
-| 2.10            | yes    |
+| 2.9 and arlier  | not tested    |
+| 2.10             | yes    |
+| 2.11            | yes    |
 
+* "yes"
+* "not tested" - I can't think of a reason why it wouldn't work
+* "not yet" - there is an intention to get it working
+* "no"
 
 ## Installation
 
-**TODO:** Add any additional installation steps to the list below.
-   For example, installing any non-Python dependencies or adding any required
-   config settings.
-
-To install markdown_view:
+To install the extension:
 
 1. Activate your CKAN virtual environment, for example:
 ```bash
-     . /usr/lib/ckan/default/bin/activate
+. /usr/lib/ckan/default/bin/activate
 ```
-2. Clone the source and install it on the virtualenv
+2. Use pip to install package
 ```bash
-    git clone https://github.com/Mat-O-Lab/ckanext-markdown_view.git
-    cd ckanext-markdown_view
-    pip install -e .
-   pip install -r requirements.txt
+pip install ckanext-markdown_view
 ```
-3. Add `markdown_view` to the `ckan.plugins` and `ckan.views` setting in your CKAN
+3. Add `markdown_view` to the `ckan.plugins` setting in your CKAN
    config file (by default the config file is located at
    `/etc/ckan/default/ckan.ini`).
 
 4. Restart CKAN. For example, if you've deployed CKAN with Apache on Ubuntu:
 ```bash
-     sudo service apache2 reload
+sudo service apache2 reload
 ```
 
 ## Config settings
-
-```bash
-```
-or ckan.ini parameters.
-```bash
-```
-If no Api Token is given, only public resources can be uploaded to the triple store!
 
 You can set the default formats to preselected for upload by setting the formats,
 ```bash

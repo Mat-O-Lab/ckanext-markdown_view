@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages  # Always prefer setuptools over distutils
 from codecs import open  # To use a consistent encoding
-from os import path
+from os import path, environ
 
 here = path.abspath(path.dirname(__file__))
 
@@ -14,9 +14,10 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
-    version="0.0.1",
+    version=environ.get('VERSION', '0.0.0'),
     description="""An extension for a markdown preview""",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     # The project's main homepage.
     url="https://github.com/Mat-O-Lab/ckanext-markdown_view",
     # Author details
@@ -38,7 +39,7 @@ setup(
         "Programming Language :: Python :: 3.8",
     ],
     # What does your project relate to?
-    keywords="""CKAN""",
+    keywords="""CKAN Markdown""",
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
