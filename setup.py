@@ -9,6 +9,9 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
+with open(path.join(here,"requirements.txt")) as f:
+    requirements = f.read().splitlines()
+
 setup(
     name="""ckanext-markdown_view""",
     # Versions should comply with PEP440.  For a discussion on single-sourcing
@@ -18,6 +21,7 @@ setup(
     description="""An extension for a markdown preview""",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    install_requires=requirements,
     # The project's main homepage.
     url="https://github.com/Mat-O-Lab/ckanext-markdown_view",
     # Author details
