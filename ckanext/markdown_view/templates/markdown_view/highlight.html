@@ -1,73 +1,30 @@
-<link rel="stylesheet" href="/markdown_view.css" />
-<form method="post" id="highlight-form" class="hidden">
-    {{ h.csrf_input() }}
-    <label for="highlight">highlight:</label>
-    <input type="text" name="highlight" id="highlight" placeholder='Enter markdown text to highlight...'
-        maxlength='3000' minlength='10'>
-    <input type="submit">
-</form>
-<div id="markdown_content" class="row">
-    <span id="markdown_content1"></span><span id="markdown_content2" class="inline highlight"></span><span
-        id="markdown_content3"></span>
-</div>
+{% extends "page.html" %}
 
-<div id="markdown_content" class="row">
-    <span id="markdown_content1" class="inline"></span><span id="markdown_content2"
-        class="inline highlight"></span><span id="markdown_content3" class="inline"></span>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"
-    integrity="sha512-JatFEe90fJU2nrgf27fUz2hWRvdYrSlTEV8esFuqCtfiqWN8phkS1fUl/xCfYyrLDQcNf3YyS0V9hG7U4RHNmQ=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"
-    integrity="sha512-xeUh+KxNyTufZOje++oQHstlMQ8/rpyzPuM+gjMFYK3z5ILJGE7l2NvYL+XfliKURMpBIKKp1XoPN/qswlSMFA=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="
-https://cdn.jsdelivr.net/npm/marked-extended-tables@1.0.8/lib/index.umd.min.js
-"></script>
+{%- block page %}
 <script>
-    marked.use("marked-extended-tables", "gfm");
-    const renderer = new marked.Renderer();
-    renderer.image = function (href, title, text) {
-        return `<img class="img-fluid" src="${href}" alt="${text}" title="${title}" />`; // for local references
-    };
-    renderer.paragraph = function (text) {
-        return `<p class="text-break"/>${text}</p>`;
-    };
-    marked.use({ renderer });
-    // Override function
-    const tokenizer = {
-        codespan(src) {
-            const match = src.match(/^\$+([^\$\n]+?)\$+/);
-            if (match) {
-                return {
-                    type: 'codespan',
-                    raw: match[0],
-                    text: match[1].trim()
-                };
-            }
-
-            // return false to use original codespan tokenizer
-            return false;
-        }
-    };
-    marked.use({ tokenizer });
-    sliceString = "{{ highlight }}";
-    fetch("{{ resource.get('url') }}")
-        .then(response => response.blob())
-        .then(blob => blob.text())
-        .then(markdown => {
-            const sliceIndex = markdown.indexOf(sliceString); // find the index of the slice string
-            const beforeSlice = markdown.substring(0, sliceIndex); // extract the part before the slice string
-            const afterSlice = markdown.substring(sliceIndex + sliceString.length); // extract the part after the slice string
-            console.log(sliceIndex); // do whatever you want with the sliced parts
-            const sliceDiv = document.getElementById("markdown_content2");
-            document.getElementById("markdown_content1").innerHTML = DOMPurify.sanitize(marked.parse(beforeSlice, { breaks: true }));
-            sliceDiv.innerHTML = DOMPurify.sanitize(marked.parse(sliceString, { breaks: true }));
-            document.getElementById("markdown_content3").innerHTML = DOMPurify.sanitize(marked.parse(afterSlice, { breaks: true }));
-            window.scrollTo({
-                top: sliceDiv.offsetTop,
-                behavior: "smooth"
-            });
-        });
+    const start = {{ start_index }};
+    const end = {{ end_index }};
 </script>
+
+{% if start_index is none and end_index is none %}
+    <form method="post" id="highlight-form" class="hidden">
+        {{ h.csrf_input() }}
+        <label for="highlight">highlight:</label>
+        <input type="text" name="highlight" id="highlight" placeholder='Enter markdown text to highlight...'
+            maxlength='3000' minlength='10'>
+        <input type="submit">
+    </form>
+{% endif %}
+<div id="markdown_content" data-page-url="{{resource.get('url') }}">
+</div>
+
+{% asset 'markdown_view/purify' %}
+{% asset 'markdown_view/marked' %}
+{% asset 'markdown_view/marked_tables' %}
+{% asset 'markdown_view/markdown_view_css' %}
+{% asset 'markdown_view/katex' %}
+{% asset 'markdown_view/katex_css' %}
+{% asset 'markdown_view/katex_autorender' %}
+{% asset 'markdown_view/markdown_view' %}
+
+{% endblock -%}

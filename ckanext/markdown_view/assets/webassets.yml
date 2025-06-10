@@ -1,49 +1,42 @@
 marked_tables:
-  output: markdown_view/marked_tables.js
+  output: markdown_view/%(version)s_marked_tables.js
   contents:
     - index.umd.min.js
 
 purify:
-  output: markdown_view/purify.js
+  output: markdown_view/%(version)s_markdown_view/purify.js
   contents:
     - purify.min.js
 
 katex:
-  output: markdown_view/katex.js
+  output: markdown_view/%(version)s_markdown_view/katex.js
   contents:
     - katex.min.js
 
 katex_autorender:
-  output: markdown_view/katex_autorender.js
+  output: markdown_view/%(version)s_markdown_view/katex_autorender.js
   contents:
     - auto-render.min.js
 
 katex_css:
-  output: markdown_view/katex.css
+  output: markdown_view/%(version)s_markdown_view/katex.css
   contents:
     - katex.min.css
 
 markdown_view_css:
-  output: markdown_view/markdown_view.css
+  output: markdown_view/%(version)s_markdown_view/markdown_view.css
   contents:
     - markdown_view.css
 
 marked:
-  output: markdown_view/marked.js
+  output: markdown_view/%(version)s_markdown_view/marked.js
   contents:
     - marked.min.js
 
 markdown_view:
-  output: markdown_view/markdown_view.js
+  output: markdown_view/%(version)s_markdown_view/markdown_view.js
   contents:
     - markdown_view.js
   filters: rjsmin
-  extra:
-    preload:
-      - markdown_view/purify
-      - markdown_view/marked
-      - markdown_view/marked_tables
-      - markdown_view/markdown_view_css
-      - markdown_view/katex
-      - markdown_view/katex_css
-      - markdown_view/katex_autorender
+
+  

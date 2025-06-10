@@ -16,6 +16,8 @@ class HighlightView(MethodView):
         from ckanext.markdown_view.plugin import DEFAULT_FORMATS
 
         resource = {}
+        start_index = int(request.args.get("start", 0))  # Startindex aus den URL-Parametern
+        end_index = int(request.args.get("end", 0))    # Endindex aus den URL-Parametern
         try:
             resource = toolkit.get_action("resource_show")({}, {"id": id})
         except (toolkit.ObjectNotFound, toolkit.NotAuthorized):
@@ -27,7 +29,10 @@ class HighlightView(MethodView):
         #     base.abort(422, "Not a Markdown File")
         return base.render(
             "markdown_view/highlight.html",
-            extra_vars={"resource": resource},
+            extra_vars={"resource": resource, 
+                        "start_index": start_index,
+                        "end_index": end_index,
+                        },
         )
 
     def post(self, pkg_id: str, id: str):
