@@ -13,6 +13,17 @@ blueprint = Blueprint("markdown_view", __name__)
 
 class HighlightView(MethodView):
     def get(self, pkg_id: str, id: str, start: int=0, end: int=0):
+        """Get rendered Markdown with the possibility to highlight a section by pointing out the start and end of the markdown slice to highlight.
+
+        Args:
+            pkg_id (str): dataset id
+            id (str): ressource id of the markdown file
+            start (int, optional): start of the markdown strings slice to highlight. Defaults to 0.
+            end (int, optional): start of the markdown strings slice to highlight. Defaults to 0.
+
+        Returns:
+            html: rendered markdown as html site
+        """
         from ckanext.markdown_view.plugin import DEFAULT_FORMATS
 
         resource = {}
