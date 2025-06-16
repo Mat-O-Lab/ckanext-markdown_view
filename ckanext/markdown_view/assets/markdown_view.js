@@ -18,8 +18,10 @@ marked.use({ renderer });
 
 document.addEventListener("DOMContentLoaded", async function () {
     
-    const pageUrl = document.getElementById('markdown_content').getAttribute('data-page-url');
+    const contentDiv = document.getElementById("markdown_content");
+    const pageUrl = contentDiv.getAttribute('data-page-url');
     
+
     try {
         const response = await fetch(pageUrl);  // Path to raw Markdown file
         const blob = await response.blob();  // Unwrap to a blob...
@@ -52,12 +54,49 @@ document.addEventListener("DOMContentLoaded", async function () {
             parsedHTML = marked.parse(markdown.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, ""));
             parsedHTML = DOMPurify.sanitize(parsedHTML);
         }
-
+        
         // Inject sanitized HTML into the page
-        const contentDiv = document.getElementById("markdown_content");
         contentDiv.innerHTML = parsedHTML;
 
-        
+         // After content is injected, get all images
+         const images = contentDiv.getElementsByTagName('img');
+         let loadedImagesCount = 0;
+ 
+         // Function to scroll to the highlighted element
+         const scrollToHighlighted = () => {
+             const highlightedElement = document.getElementById('highlighted');
+             if (highlightedElement) {
+                 highlightedElement.scrollIntoView({
+                     behavior: "smooth",
+                     block: "start",
+                     inline: "nearest"
+                 });
+             }
+         };
+ 
+         // If there are images, wait for all of them to load
+         if (images.length > 0) {
+             for (let img of images) {
+                 img.addEventListener('load', () => {
+                     loadedImagesCount++;
+                     // If all images are loaded, scroll
+                     if (loadedImagesCount === images.length) {
+                         scrollToHighlighted();
+                     }
+                 });
+ 
+                 img.addEventListener('error', () => {
+                     // Handle image loading errors if necessary
+                     loadedImagesCount++;
+                     if (loadedImagesCount === images.length) {
+                         scrollToHighlighted();
+                     }
+                 });
+             }
+         } else {
+             // If no images, scroll immediately
+             scrollToHighlighted();
+         }
         // Render math in the body
         renderMathInElement(document.body, {
             delimiters: [
@@ -68,20 +107,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             ],
             throwOnError: false
         });
-        // Use requestAnimationFrame to ensure the scroll happens after rendering
-        requestAnimationFrame(() => {
-            // Delay scrolling slightly to allow other JS to affect rendering
-            setTimeout(() => {
-                const highlightedElement = document.getElementById('highlighted');
-                if (highlightedElement) {
-                    highlightedElement.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start",
-                        inline: "nearest"
-                    });
-                }
-            }, 500); // Adjust the delay as necessary
-        });
+        
     } catch (error) {
         console.error("Failed to load Markdown content:", error);
     }
