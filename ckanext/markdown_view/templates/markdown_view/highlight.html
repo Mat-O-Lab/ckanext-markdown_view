@@ -1,5 +1,11 @@
 {% extends "page.html" %}
 
+{% block styles %}
+    {{ super() }}
+    {% asset 'markdown_view/markdown_view_css' %}
+    {% asset 'markdown_view/katex_css' %}
+{% endblock %}
+
 {%- block page %}
 <script>
     const start = {{ start_index }};
@@ -17,14 +23,13 @@
 {% endif %}
 <div id="markdown_content" data-page-url="{{resource.get('url') }}">
 </div>
+{% endblock -%}
 
+{%- block scripts %}
 {% asset 'markdown_view/purify' %}
 {% asset 'markdown_view/marked' %}
 {% asset 'markdown_view/marked_tables' %}
-{% asset 'markdown_view/markdown_view_css' %}
 {% asset 'markdown_view/katex' %}
-{% asset 'markdown_view/katex_css' %}
 {% asset 'markdown_view/katex_autorender' %}
 {% asset 'markdown_view/markdown_view' %}
-
 {% endblock -%}
